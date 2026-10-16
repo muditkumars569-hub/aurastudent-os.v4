@@ -1,0 +1,1056 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURA OS v3.0 - Student Workspace</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkBg: '#0b0f19',
+                        cardBg: '#111827',
+                        cardBorder: '#1f2937',
+                        accentBlue: '#3b82f6',
+                        accentPurple: '#8b5cf6',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4b5563; }
+    </style>
+</head>
+<body class="bg-darkBg text-gray-100 min-h-screen flex flex-col md:flex-row antialiased select-none">
+
+    <!-- Toast Notification Box -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-gray-900 border border-gray-700 text-white px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-green-400 text-lg"></i>
+        <span id="toast-msg" class="text-sm font-medium">Notification message</span>
+    </div>
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="w-full md:w-64 bg-cardBg border-r border-cardBorder flex flex-col justify-between p-4 md:p-6 shrink-0 z-20">
+        <div>
+            <!-- Logo Header -->
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center space-x-3">
+                    <div class="bg-gradient-to-tr from-blue-600 to-indigo-600 p-2.5 rounded-xl shadow-lg shadow-blue-500/30">
+                        <i class="fa-solid fa-bolt text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg tracking-wide text-white flex items-center gap-2">
+                            AURA OS <span class="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full font-mono">v3.0</span>
+                        </h1>
+                        <p class="text-xs text-gray-400">Student Workspace</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="space-y-1.5">
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2 px-3">Navigation</p>
+                <button onclick="switchTab('study')" id="nav-study" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-all duration-200 bg-blue-600 text-white shadow-lg shadow-blue-600/25">
+                    <i class="fa-solid fa-graduation-cap w-5 text-center"></i>
+                    <span>Study Tracker</span>
+                </button>
+                <button onclick="switchTab('habits')" id="nav-habits" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-all duration-200 text-gray-400 hover:bg-gray-800/60 hover:text-gray-200">
+                    <i class="fa-solid fa-fire w-5 text-center"></i>
+                    <span>Habits & Routines</span>
+                </button>
+                <button onclick="switchTab('expense')" id="nav-expense" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-all duration-200 text-gray-400 hover:bg-gray-800/60 hover:text-gray-200">
+                    <i class="fa-solid fa-wallet w-5 text-center"></i>
+                    <span>Expense Tracker</span>
+                </button>
+                <button onclick="switchTab('journal')" id="nav-journal" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-all duration-200 text-gray-400 hover:bg-gray-800/60 hover:text-gray-200">
+                    <i class="fa-solid fa-book-open w-5 text-center"></i>
+                    <span>Journal & Notes</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- User Profile Footer -->
+        <div class="pt-6 border-t border-cardBorder mt-6 flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 flex items-center justify-center font-bold text-white shadow-md">
+                MS
+            </div>
+            <div class="overflow-hidden">
+                <h4 class="text-sm font-semibold text-white truncate">Mudit Sharma</h4>
+                <p class="text-xs text-gray-400 truncate">Student Workspace</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="flex-1 overflow-y-auto p-4 md:p-8 relative">
+
+        <!-- ================= STUDY TRACKER TAB ================= -->
+        <div id="tab-study" class="space-y-6 max-w-7xl mx-auto">
+            <!-- Top Metric Banner -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-cardBg border border-cardBorder p-5 rounded-2xl shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Study Hours (Daily)</span>
+                        <button onclick="openEditTargetModal()" class="text-xs text-blue-400 hover:underline"><i class="fa-solid fa-pen-to-square mr-1"></i>Edit Target</button>
+                    </div>
+                    <div class="mt-3 flex items-baseline space-x-2">
+                        <h3 id="stat-study-hours" class="text-2xl font-bold text-white">12.0 / <span id="stat-study-target-display">4.5</span> hrs</h3>
+                    </div>
+                    <p class="text-xs text-green-400 mt-2"><i class="fa-solid fa-arrow-trend-up mr-1"></i> <span id="stat-target-percent">76%</span> of weekly target achieved</p>
+                </div>
+                <div class="bg-cardBg border border-cardBorder p-5 rounded-2xl shadow-sm">
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Study Target (Daily)</span>
+                    <div class="mt-3 flex items-baseline space-x-2">
+                        <h3 id="stat-target-val" class="text-2xl font-bold text-white">4.5 <span class="text-sm font-normal text-gray-400">hrs</span></h3>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-2">76% of selected day's target achieved</p>
+                </div>
+                <div class="bg-cardBg border border-cardBorder p-5 rounded-2xl shadow-sm">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Active Focus Timer</span>
+                        <button onclick="openFocusScreen()" class="text-xs bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 px-2.5 py-1 rounded-lg transition"><i class="fa-solid fa-expand mr-1"></i>Focus Screen</button>
+                    </div>
+                    <div class="flex items-center justify-between mt-3">
+                        <h3 id="timer-display" class="text-3xl font-mono font-bold text-white tracking-wider">25:00</h3>
+                        <div class="flex space-x-2">
+                            <button id="timer-start-btn" onclick="toggleTimer()" class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition shadow-lg shadow-blue-600/30">Start</button>
+                            <button onclick="resetTimer()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold px-3 py-2 rounded-xl transition">Reset</button>
+                        </div>
+                    </div>
+                    <div class="mt-2 flex justify-between items-center text-xs text-gray-400">
+                        <span>Preset: <span id="current-timer-preset" class="text-blue-400 font-medium">25m</span></span>
+                        <button onclick="openTimerSettings()" class="hover:text-white underline"><i class="fa-solid fa-gear mr-1"></i>Customize</button>
+                    </div>
+                </div>
+                <div class="bg-cardBg border border-cardBorder p-5 rounded-2xl shadow-sm">
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Current Streak</span>
+                    <div class="mt-3 flex items-baseline space-x-2">
+                        <h3 class="text-2xl font-bold text-white">12 <span class="text-sm font-normal text-gray-400">Days</span></h3>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-2">Consistency makes history. Keep going!</p>
+                </div>
+            </div>
+
+            <!-- Log & Tasks Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Log Daily Study Hours -->
+                <div class="bg-cardBg border border-cardBorder p-6 rounded-2xl shadow-sm">
+                    <h3 class="text-base font-bold text-white mb-4 flex items-center"><i class="fa-solid fa-clock-rotate-left mr-2 text-blue-500"></i>Log / Update Daily Study Hours</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Day</label>
+                            <select id="log-day-select" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-blue-500">
+                                <option value="Monday">Monday</option>
+                                <option value="Tuesday">Tuesday</option>
+                                <option value="Wednesday">Wednesday</option>
+                                <option value="Thursday">Thursday</option>
+                                <option value="Friday">Friday</option>
+                                <option value="Saturday">Saturday</option>
+                                <option value="Sunday">Sunday</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Hours Studied (e.g., 5.5)</label>
+                            <input type="number" step="0.5" id="log-hours-input" placeholder="e.g. 5.5" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-blue-500">
+                        </div>
+                        <button onclick="submitStudyLog()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-sm transition shadow-lg shadow-blue-600/30 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-check"></i> Update Day
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Study Task Bar -->
+                <div class="bg-cardBg border border-cardBorder p-6 rounded-2xl shadow-sm lg:col-span-2 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-base font-bold text-white flex items-center"><i class="fa-solid fa-list-check mr-2 text-indigo-500"></i>Study Task Bar (Today's Topics)</h3>
+                            <span id="task-progress-text" class="text-xs bg-indigo-500/20 text-indigo-400 px-2.5 py-1 rounded-full font-semibold">1 / 2 Done</span>
+                        </div>
+                        <div class="flex gap-2 mb-4">
+                            <input type="text" id="new-task-input" placeholder="Add a study task / topic..." class="flex-1 bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-indigo-500">
+                            <select id="new-task-priority" class="bg-gray-900 border border-gray-700 rounded-xl px-3 py-2.5 text-xs text-gray-300">
+                                <option value="High">High</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Low">Low</option>
+                            </select>
+                            <button onclick="addNewStudyTask()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition">Add</button>
+                        </div>
+                        <div id="study-tasks-list" class="space-y-2.5 max-h-40 overflow-y-auto pr-1">
+                            <!-- Injected tasks -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Study Hours Analytics (Trendline) -->
+            <div class="bg-cardBg border border-cardBorder p-6 rounded-2xl shadow-sm">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h3 class="text-base font-bold text-white">Study Hours Analytics (Tip + Trending)</h3>
+                        <p class="text-xs text-gray-400">Track your weekly performance trend</p>
+                    </div>
+                    <button onclick="showToast('Live chart updated successfully')" class="text-xs text-blue-400 hover:underline"><i class="fa-solid fa-chart-line mr-1"></i>Live Chart</button>
+                </div>
+                <!-- Mock SVG Analytics Graph -->
+                <div class="relative h-48 w-full">
+                    <svg class="w-full h-full overflow-visible" viewBox="0 0 800 180" preserveAspectRatio="none">
+                        <defs>
+                            <linearGradient id="trendGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.3"></stop>
+                                <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"></stop>
+                            </linearGradient>
+                        </defs>
+                        <!-- Grid lines -->
+                        <line x1="0" y1="30" x2="800" y2="30" stroke="#1f2937" stroke-dasharray="4"></line>
+                        <line x1="0" y1="90" x2="800" y2="90" stroke="#1f2937" stroke-dasharray="4"></line>
+                        <line x1="0" y1="150" x2="800" y2="150" stroke="#1f2937" stroke-dasharray="4"></line>
+                        <!-- Area -->
+                        <path d="M 50 120 Q 200 80, 350 95 T 650 40 L 750 20 L 750 160 L 50 160 Z" fill="url(#trendGrad)"></path>
+                        <!-- Trend Curve -->
+                        <path id="analytics-curve" d="M 50 120 Q 200 80, 350 95 T 650 40 L 750 20" fill="none" stroke="#3b82f6" stroke-width="3" stroke-linecap="round"></path>
+                        <!-- Data Points -->
+                        <circle cx="50" cy="120" r="5" class="fill-blue-500 stroke-darkBg" stroke-width="2"></circle>
+                        <circle cx="200" cy="95" r="5" class="fill-blue-500 stroke-darkBg" stroke-width="2"></circle>
+                        <circle cx="350" cy="95" r="5" class="fill-blue-500 stroke-darkBg" stroke-width="2"></circle>
+                        <circle cx="500" cy="70" r="5" class="fill-blue-500 stroke-darkBg" stroke-width="2"></circle>
+                        <circle cx="650" cy="40" r="5" class="fill-blue-500 stroke-darkBg" stroke-width="2"></circle>
+                        <circle cx="750" cy="20" r="5" class="fill-blue-500 stroke-darkBg" stroke-width="2"></circle>
+                    </svg>
+                    <!-- Days Labels -->
+                    <div class="flex justify-between text-xs text-gray-400 mt-2 px-2">
+                        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= HABITS & ROUTINES TAB ================= -->
+        <div id="tab-habits" class="space-y-6 max-w-7xl mx-auto hidden">
+            <!-- Add New Habit & Top Insights -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Add New Daily Habit -->
+                <div class="bg-cardBg border border-cardBorder p-6 rounded-2xl shadow-sm">
+                    <h3 class="text-base font-bold text-white mb-4 flex items-center"><i class="fa-solid fa-plus-circle mr-2 text-orange-500"></i>Add New Daily Habit</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Habit Name</label>
+                            <input type="text" id="new-habit-name" placeholder="e.g., Solve 2 LeetCode problems..." class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-orange-500">
+                        </div>
+                        <button onclick="addNewHabit()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2.5 rounded-xl text-sm transition shadow-lg shadow-orange-600/30 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Add Habit
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Today's Completion Circular Graph -->
+                <div class="bg-cardBg border border-cardBorder p-6 rounded-2xl shadow-sm flex items-center justify-between">
+                    <div>
+                        <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Today's Completion Circular Graph</span>
+                        <h3 class="text-2xl font-bold text-white mt-1">68% <span class="text-xs text-green-400 font-normal">Done</span></h3>
+                        <p class="text-xs text-gray-400 mt-2">Consistency keeps history strong.</p>
+                    </div>
+                    <div class="relative w-24 h-24 flex items-center justify-center">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                            <path class="text-gray-800" stroke-width="3.8" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+                            <path class="text-orange-500" stroke-dasharray="68, 100" stroke-width="3.8" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"></path>
+                        </svg>
+                        <div class="absolute text-sm font-bold text-white">68%</div>
+                    </div>
+                </div>
+
+                <!-- Habit Radar Balance -->
+                <div class="bg-cardBg border border-cardBorder p-6 rounded-2xl shadow-sm">
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Habit Radar Balance</span>
+                    <div class="grid grid-cols-2 gap-3 mt-4 text-xs">
+                        <div class="bg-gray-900/50 p-2.5 rounded-xl border border-gray-800 flex justify-between items-center"><span class="text-gray-400">Mindfulness</span><span class="text-orange-400 font-bold">Good</span></div>
+                        <div class="bg-gray-900/50 p-2.5 rounded-xl border border-gray-800 flex justify-between items-center"><span class="text-gray-400">Coding</span><span class="text-blue-400 font-bold">High</span></div>
+                        <div class="bg-gray-900/50 p-2.5 rounded-xl border border-gray-800 flex justify-between items-center"><span class="text-gray-400">Fitness</span><span class="text-green-400 font-bold">Active</span></div>
+                        <div class="bg-gray-900/50 p-2.5 rounded-xl border border-gray-800 flex justify-between items-center"><span class="text-gray-400">Sleep</span><span class="text-purple-400 font-bold">Optimal</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Daily Habits Checklist Table -->
+            <div class="bg-cardBg border border-cardBorder p-6 rounded-2xl shadow-sm overflow-x-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-base font-bold text-white">Daily Habits Checklist / 7-Day Habit Tracker</h3>
+                    <span class="text-xs text-gray-400">Click checkboxes to track & sync update</span>
+                </div>
+                <table class="w-full text-left border-collapse min-w-[700px]">
+                    <thead>
+                        <tr class="border-b border-cardBorder text-xs text-gray-400">
+                            <th class="pb-3 font-semibold uppercase">Habit & Category</th>
+                            <th class="pb-3 text-center font-semibold">Oct 10</th>
+                            <th class="pb-3 text-center font-semibold">Oct 11</th>
+                            <th class="pb-3 text-center font-semibold">Oct 12</th>
+                            <th class="pb-3 text-center font-semibold">Oct 13</th>
+                            <th class="pb-3 text-center font-semibold">Oct 14</th>
+                            <th class="pb-3 text-center font-semibold">Oct 15</th>
+                            <th class="pb-3 text-center font-semibold">Oct 16</th>
+                            <th class="pb-3 text-right font-semibold">Weekly Line Bar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="habits-table-body" class="divide-y divide-cardBorder text-sm">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ================= EXPENSE TRACKER TAB ================= -->
+        <div id="tab-expense" class="space-y-6 max-w-7xl mx-auto hidden">
+            <!-- Financial Summary Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-cardBg border border-cardBorder p-5 rounded-2xl shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Monthly Income</span>
+                        <button onclick="openIncomeModal()" class="text-xs text-blue-400 hover:underline"><i class="fa-solid fa-pen-to-square mr-1"></i>Update</button>
+                    </div>
+                    <h3 id="exp-income-display" class="text-2xl font-bold text-white mt-3">₹15,000</h3>
+                    <p class="text-xs text-gray-400 mt-2">Managed monthly budget</p>
+                </div>
+                <div class="bg-cardBg border border-cardBorder p-5 rounded-2xl shadow-sm">
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Total Expenses</span>
+                    <h3 id="exp-total-display" class="text-2xl font-bold text-white mt-3">₹2,450</h3>
+                    <p class="text-xs text-gray-400 mt-2">Sum of logged expenses</p>
+                </div>
+                <div class="bg-cardBg border border-cardBorder p-5 rounded-2xl shadow-sm">
+                    <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Remaining Balance</span>
+                    <h3 id="exp-remaining-display" class="text-2xl font-bold text-green-400 mt-3">₹12,550</h3>
+                    <p class="text-xs text-gray-400 mt-2">Income minus total expenses</p>
+                </div>
+            </div>
+
+            <!-- Record New Expense & Breakdown Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Form -->
+                <div class="bg-cardBg border border-cardBorder p-6 rounded-2xl shadow-sm">
+                    <h3 class="text-base font-bold text-white mb-4 flex items-center"><i class="fa-solid fa-receipt mr-2 text-green-500"></i>Record New Expense</h3>
+                    <form onsubmit="handleRecordExpense(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Item Name / Title</label>
+                            <input type="text" id="exp-name" required placeholder="e.g. Coffee" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-green-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Amount in ₹ (e.g., 250)</label>
+                            <input type="number" id="exp-amount" required placeholder="250" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-green-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Category / Study</label>
+                            <select id="exp-category" onchange="checkCustomCategory(this)" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-green-500">
+                                <option value="Education / Study">Education / Study</option>
+                                <option value="Food & Snacks">Food & Snacks</option>
+                                <option value="Subscriptions">Subscriptions</option>
+                                <option value="Transport">Transport</option>
+                                <option value="Utilities">Utilities</option>
+                                <option value="custom">+ Add Custom Category...</option>
+                            </select>
+                        </div>
+                        <div id="custom-category-box" class="hidden">
+                            <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Enter Custom Category Name</label>
+                            <input type="text" id="exp-custom-cat-input" placeholder="e.g. Stationery, Books..." class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-green-500">
+                        </div>
+                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 rounded-xl text-sm transition shadow-lg shadow-green-600/30 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Record Expense
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Expense Breakdown & Recent Transactions -->
+                <div class="bg-cardBg border border-cardBorder p-6 rounded-2xl shadow-sm lg:col-span-2 flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-base font-bold text-white">Expense Breakdown</h3>
+                            <span class="text-xs bg-green-500/20 text-green-400 px-2.5 py-1 rounded-full font-semibold">Total ₹<span id="breakdown-total-val">2,450</span></span>
+                        </div>
+                        <div id="expense-breakdown-list" class="space-y-3 mb-6">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center pt-4 border-t border-cardBorder mb-3">
+                            <h4 class="text-sm font-semibold text-white">Recent Transactions</h4>
+                            <span class="text-xs text-gray-400" id="recent-tx-count">Showing 4 items</span>
+                        </div>
+                        <div id="recent-transactions-list" class="space-y-2 max-h-40 overflow-y-auto pr-1">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= JOURNAL & NOTES TAB ================= -->
+        <div id="tab-journal" class="space-y-6 max-w-7xl mx-auto hidden">
+            <!-- Grid Top: Interactive Calendar & Study Tasks & General Tasks -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Interactive Calendar (Larger, better grid, fully functional date selection) -->
+                <div class="bg-cardBg border border-cardBorder p-6 rounded-2xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <div class="flex items-center space-x-3">
+                                <h3 id="cal-month-year-title" class="text-base font-bold text-white">October 2026</h3>
+                                <div class="flex space-x-1">
+                                    <button onclick="changeMonth(-1)" class="w-7 h-7 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 flex items-center justify-center text-xs"><i class="fa-solid fa-chevron-left"></i></button>
+                                    <button onclick="changeMonth(1)" class="w-7 h-7 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 flex items-center justify-center text-xs"><i class="fa-solid fa-chevron-right"></i></button>
+                                </div>
+                            </div>
+                            <span id="selected-date-badge" class="text-xs bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full font-medium">Selected: Oct 16, 2026</span>
+                        </div>
+                        <!-- Calendar Grid -->
+                        <div class="grid grid-cols-7 gap-2 text-center text-xs font-semibold text-gray-400 mb-2">
+                            <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                        </div>
+                        <div id="calendar-days-grid" class="grid grid-cols-7 gap-2">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                    <!-- Date Mood / Status quick setter -->
+                    <div class="mt-6 pt-4 border-t border-cardBorder">
+                        <p class="text-xs font-semibold text-gray-400 mb-2">How are you feeling on <span id="mood-date-label">Oct 16</span>?</p>
+                        <div class="grid grid-cols-4 gap-2">
+                            <button onclick="setDateStatus('Awesome', 'text-green-400 bg-green-500/10 border-green-500/30')" class="px-3 py-2 rounded-xl text-xs font-medium border border-gray-700 hover:border-green-500 transition text-green-400 bg-green-500/10">Awesome</button>
+                            <button onclick="setDateStatus('Productive', 'text-blue-400 bg-blue-500/10 border-blue-500/30')" class="px-3 py-2 rounded-xl text-xs font-medium border border-gray-700 hover:border-blue-500 transition text-gray-400 hover:text-blue-400">Productive</button>
+                            <button onclick="setDateStatus('Calm', 'text-purple-400 bg-purple-500/10 border-purple-500/30')" class="px-3 py-2 rounded-xl text-xs font-medium border border-gray-700 hover:border-purple-500 transition text-gray-400 hover:text-purple-400">Calm</button>
+                            <button onclick="setDateStatus('Stressed', 'text-orange-400 bg-orange-500/10 border-orange-500/30')" class="px-3 py-2 rounded-xl text-xs font-medium border border-gray-700 hover:border-orange-500 transition text-gray-400 hover:text-orange-400">Stressed</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Study Tasks & General Tasks -->
+                <div class="bg-cardBg border border-cardBorder p-6 rounded-2xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-base font-bold text-white">Study Tasks & General Tasks</h3>
+                            <span class="text-xs bg-indigo-500/20 text-indigo-400 px-2.5 py-1 rounded-full font-semibold">Organized</span>
+                        </div>
+                        <div class="flex gap-2 mb-4">
+                            <input type="text" id="journal-task-input" placeholder="Add a study or general task..." class="flex-1 bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-indigo-500">
+                            <select id="journal-task-priority" class="bg-gray-900 border border-gray-700 rounded-xl px-3 py-2.5 text-xs text-gray-300">
+                                <option value="Study High">Study High</option>
+                                <option value="General Med">General Med</option>
+                            </select>
+                            <button onclick="addJournalTask()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition">Add</button>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Study Tasks -->
+                            <div class="bg-gray-900/60 p-4 rounded-xl border border-gray-800">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h4 class="text-xs font-bold uppercase tracking-wider text-indigo-400">Study Tasks</h4>
+                                    <span id="journal-study-count" class="text-xs text-gray-400">1 item</span>
+                                </div>
+                                <div id="journal-study-list" class="space-y-2 max-h-36 overflow-y-auto pr-1"></div>
+                            </div>
+                            <!-- General Tasks -->
+                            <div class="bg-gray-900/60 p-4 rounded-xl border border-gray-800">
+                                <div class="flex justify-between items-center mb-3">
+                                    <h4 class="text-xs font-bold uppercase tracking-wider text-purple-400">General Tasks</h4>
+                                    <span id="journal-general-count" class="text-xs text-gray-400">1 item</span>
+                                </div>
+                                <div id="journal-general-list" class="space-y-2 max-h-36 overflow-y-auto pr-1"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grid Bottom: Quick Notes & Snippets and Daily Reflection -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Quick Notes & Snippets (Fully Functional) -->
+                <div class="bg-cardBg border border-cardBorder p-6 rounded-2xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-base font-bold text-white flex items-center"><i class="fa-solid fa-note-sticky mr-2 text-yellow-500"></i>Quick Notes & Snippets</h3>
+                            <div class="flex space-x-2">
+                                <button onclick="saveQuickNote()" class="bg-yellow-600/20 text-yellow-400 hover:bg-yellow-600/30 text-xs px-3 py-1.5 rounded-xl font-medium transition"><i class="fa-solid fa-floppy-disk mr-1"></i>Save Note</button>
+                                <button onclick="copyQuickNote()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs px-3 py-1.5 rounded-xl font-medium transition"><i class="fa-solid fa-copy mr-1"></i>Copy</button>
+                            </div>
+                        </div>
+                        <textarea id="quick-notes-textarea" rows="5" class="w-full bg-gray-900 border border-gray-700 rounded-xl p-4 text-sm font-mono text-gray-200 focus:outline-none focus:border-yellow-500 resize-none" placeholder="# Python formulas, Terminal commands, or quick study notes..."></textarea>
+                    </div>
+                    <p class="text-xs text-gray-400 mt-2">Auto-saves to browser local storage. Click Copy or Save anytime.</p>
+                </div>
+
+                <!-- Daily Reflection & Wins Log -->
+                <div class="bg-cardBg border border-cardBorder p-6 rounded-2xl shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-base font-bold text-white flex items-center"><i class="fa-solid fa-award mr-2 text-pink-500"></i>Daily Reflection & Wins Log</h3>
+                            <button onclick="generateAISummary()" class="text-xs text-pink-400 hover:underline"><i class="fa-solid fa-wand-magic-sparkles mr-1"></i>AI Summary</button>
+                        </div>
+                        <div class="bg-gray-900/60 p-4 rounded-xl border border-gray-800 mb-4">
+                            <p id="ai-summary-text" class="text-xs text-gray-300 leading-relaxed">
+                                Upgraded AURA OS with specific-date habits, custom categories, and fun screen focus mode.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between text-xs text-gray-400 pt-2 border-t border-cardBorder">
+                        <span>Daily Win: Consistency streak active</span>
+                        <span class="text-green-400 font-semibold">Entry Min: 5m</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ================= FULLSCREEN FOCUS MODE MODAL ================= -->
+    <div id="focus-screen-modal" class="fixed inset-0 z-50 bg-darkBg flex flex-col items-center justify-center p-6 hidden">
+        <div class="absolute top-6 right-6">
+            <button onclick="closeFocusScreen()" class="bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-2">
+                <i class="fa-solid fa-xmark"></i> Exit Focus Mode
+            </button>
+        </div>
+        <div class="text-center space-y-8 max-w-md w-full">
+            <div class="inline-block bg-blue-500/10 border border-blue-500/30 px-4 py-1.5 rounded-full text-xs text-blue-400 font-semibold tracking-wider uppercase">
+                Deep Focus Session
+            </div>
+            <h1 id="focus-screen-timer" class="text-8xl font-mono font-bold text-white tracking-widest drop-shadow-2xl">25:00</h1>
+            <div class="flex justify-center space-x-4">
+                <button id="focus-start-btn" onclick="toggleTimer()" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl text-lg font-bold shadow-xl shadow-blue-600/40 transition">Start Timer</button>
+                <button onclick="resetTimer()" class="bg-gray-800 hover:bg-gray-700 text-gray-300 px-6 py-4 rounded-2xl text-lg font-bold transition">Reset</button>
+            </div>
+            <p class="text-sm text-gray-500">Distractions blocked. Breathe and focus.</p>
+        </div>
+    </div>
+
+    <!-- ================= TIMER CUSTOMIZATION MODAL ================= -->
+    <div id="timer-settings-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-cardBg border border-cardBorder w-full max-w-md p-6 rounded-2xl shadow-2xl space-y-5">
+            <div class="flex justify-between items-center">
+                <h3 class="text-base font-bold text-white flex items-center"><i class="fa-solid fa-gear mr-2 text-blue-500"></i>Customize Pomodoro Timer</h3>
+                <button onclick="closeTimerSettings()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Select Preset Time</label>
+                    <div class="grid grid-cols-3 gap-2">
+                        <button onclick="setTimerPreset(15)" class="py-2.5 rounded-xl text-xs font-semibold border border-gray-700 hover:border-blue-500 bg-gray-900 text-gray-200">15 Minutes</button>
+                        <button onclick="setTimerPreset(25)" class="py-2.5 rounded-xl text-xs font-semibold border border-blue-500 bg-blue-600/20 text-blue-400">25 Minutes</button>
+                        <button onclick="setTimerPreset(45)" class="py-2.5 rounded-xl text-xs font-semibold border border-gray-700 hover:border-blue-500 bg-gray-900 text-gray-200">45 Minutes</button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Custom Minutes</label>
+                    <input type="number" id="custom-timer-min" min="1" max="180" value="25" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-blue-500">
+                </div>
+                <button onclick="applyCustomTimer()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-sm transition shadow-lg shadow-blue-600/30">Apply Timer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================= EDIT DAILY TARGET MODAL ================= -->
+    <div id="target-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-cardBg border border-cardBorder w-full max-w-sm p-6 rounded-2xl shadow-2xl space-y-5">
+            <div class="flex justify-between items-center">
+                <h3 class="text-base font-bold text-white">Edit Daily Study Target</h3>
+                <button onclick="closeEditTargetModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Target Hours (e.g. 6.0)</label>
+                <input type="number" step="0.5" id="modal-target-input" value="4.5" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-blue-500">
+            </div>
+            <button onclick="saveNewTarget()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-sm transition">Save Target</button>
+        </div>
+    </div>
+
+    <!-- ================= UPDATE MONTHLY INCOME MODAL ================= -->
+    <div id="income-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="bg-cardBg border border-cardBorder w-full max-w-sm p-6 rounded-2xl shadow-2xl space-y-5">
+            <div class="flex justify-between items-center">
+                <h3 class="text-base font-bold text-white">Update Monthly Income</h3>
+                <button onclick="closeIncomeModal()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 uppercase mb-1">Income Amount in ₹</label>
+                <input type="number" id="modal-income-input" value="15000" class="w-full bg-gray-900 border border-gray-700 rounded-xl px-4 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-blue-500">
+            </div>
+            <button onclick="saveNewIncome()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-sm transition">Update Income</button>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT APP LOGIC -->
+    <script>
+        // --- GLOBAL APP STATE ---
+        let currentTab = 'study';
+        
+        // Study Tracker State
+        let studyHoursData = { Monday: 2.5, Tuesday: 4.0, Wednesday: 3.5, Thursday: 5.0, Friday: 4.2, Saturday: 6.0, Sunday: 3.0 };
+        let studyTarget = 4.5;
+        let studyTasks = [
+            { id: 1, text: 'Complete Git Kernel Assignment', done: true, priority: 'High' },
+            { id: 2, text: 'Revise Graph Algorithms', done: false, priority: 'High' }
+        ];
+
+        // Timer State
+        let timerTotalSeconds = 25 * 60;
+        let timerSecondsRemaining = 25 * 60;
+        let timerInterval = null;
+        let isTimerRunning = false;
+
+        // Habits State
+        let habitsList = [
+            { id: 1, name: 'Morning Deep Work (3 hours)', days: [true, true, true, true, true, true, true] },
+            { id: 2, name: 'Read 20 Pages (Technical Book)', days: [true, false, true, true, true, false, true] },
+            { id: 3, name: 'Solve 2 DSA / Coding Problems', days: [true, true, false, true, true, true, true] }
+        ];
+
+        // Expense State
+        let monthlyIncome = 15000;
+        let expensesList = [
+            { id: 1, name: 'Metro / Campus Commute', category: 'Transport', amount: 350 },
+            { id: 2, name: 'Study Cafe Coffee & Snacks', category: 'Food & Snacks', amount: 500 },
+            { id: 3, name: 'Cloud Server & Domain', category: 'Utilities', amount: 600 },
+            { id: 4, name: 'Textbook & Reference Material', category: 'Education / Study', amount: 1000 }
+        ];
+
+        // Journal & Calendar State
+        let selectedCalendarDate = { day: 16, month: 9, year: 2026, monthName: 'October' };
+        let journalTasks = {
+            study: [{ id: 1, text: 'Review Graph Algorithms', done: false }],
+            general: [{ id: 1, text: 'Review Weekly Finances', done: true }]
+        };
+
+        // --- INIT ON LOAD ---
+        window.onload = function() {
+            renderStudyTasks();
+            renderHabitsTable();
+            renderExpenses();
+            renderCalendarDays();
+            renderJournalTasks();
+            loadQuickNotes();
+        };
+
+        // --- NAVIGATION SWITCHER ---
+        function switchTab(tabId) {
+            currentTab = tabId;
+            ['study', 'habits', 'expense', 'journal'].forEach(t => {
+                const el = document.getElementById(`tab-${t}`);
+                const nav = document.getElementById(`nav-${t}`);
+                if (t === tabId) {
+                    el.classList.remove('hidden');
+                    nav.className = "w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-all duration-200 bg-blue-600 text-white shadow-lg shadow-blue-600/25";
+                } else {
+                    el.classList.add('hidden');
+                    nav.className = "w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl text-sm font-medium transition-all duration-200 text-gray-400 hover:bg-gray-800/60 hover:text-gray-200";
+                }
+            });
+        }
+
+        // --- TOAST NOTIFICATION ---
+        function showToast(msg, isSuccess = true) {
+            const toast = document.getElementById('toast');
+            const msgEl = document.getElementById('toast-msg');
+            const iconEl = document.getElementById('toast-icon');
+            msgEl.textContent = msg;
+            iconEl.className = isSuccess ? "fa-solid fa-circle-check text-green-400 text-lg" : "fa-solid fa-circle-exclamation text-yellow-400 text-lg";
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // --- STUDY TRACKER & TIMER LOGIC ---
+        function updateTimerDisplay() {
+            const mins = Math.floor(timerSecondsRemaining / 60);
+            const secs = timerSecondsRemaining % 60;
+            const formatted = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            document.getElementById('timer-display').textContent = formatted;
+            const focusDisplay = document.getElementById('focus-screen-timer');
+            if (focusDisplay) focusDisplay.textContent = formatted;
+        }
+
+        function toggleTimer() {
+            const startBtn1 = document.getElementById('timer-start-btn');
+            const startBtn2 = document.getElementById('focus-start-btn');
+            if (!isTimerRunning) {
+                isTimerRunning = true;
+                if (startBtn1) { startBtn1.textContent = "Pause"; startBtn1.className = "bg-yellow-600 hover:bg-yellow-700 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition shadow-lg"; }
+                if (startBtn2) { startBtn2.textContent = "Pause Timer"; startBtn2.className = "bg-yellow-600 hover:bg-yellow-700 text-white px-8 py-4 rounded-2xl text-lg font-bold shadow-xl transition"; }
+                
+                timerInterval = setInterval(() => {
+                    if (timerSecondsRemaining > 0) {
+                        timerSecondsRemaining--;
+                        updateTimerDisplay();
+                    } else {
+                        clearInterval(timerInterval);
+                        isTimerRunning = false;
+                        showToast("Focus session completed! Great job!", true);
+                        resetTimer();
+                    }
+                }, 1000);
+            } else {
+                isTimerRunning = false;
+                clearInterval(timerInterval);
+                if (startBtn1) { startBtn1.textContent = "Start"; startBtn1.className = "bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition shadow-lg shadow-blue-600/30"; }
+                if (startBtn2) { startBtn2.textContent = "Start Timer"; startBtn2.className = "bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl text-lg font-bold shadow-xl shadow-blue-600/40 transition"; }
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            timerSecondsRemaining = timerTotalSeconds;
+            updateTimerDisplay();
+            const startBtn1 = document.getElementById('timer-start-btn');
+            const startBtn2 = document.getElementById('focus-start-btn');
+            if (startBtn1) { startBtn1.textContent = "Start"; startBtn1.className = "bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3.5 py-2 rounded-xl transition shadow-lg shadow-blue-600/30"; }
+            if (startBtn2) { startBtn2.textContent = "Start Timer"; startBtn2.className = "bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-2xl text-lg font-bold shadow-xl shadow-blue-600/40 transition"; }
+        }
+
+        function openTimerSettings() { document.getElementById('timer-settings-modal').classList.remove('hidden'); }
+        function closeTimerSettings() { document.getElementById('timer-settings-modal').classList.add('hidden'); }
+
+        function setTimerPreset(mins) {
+            timerTotalSeconds = mins * 60;
+            timerSecondsRemaining = timerTotalSeconds;
+            updateTimerDisplay();
+            document.getElementById('current-timer-preset').textContent = `${mins}m`;
+            closeTimerSettings();
+            showToast(`Timer set to ${mins} minutes`);
+        }
+
+        function applyCustomTimer() {
+            const minsInput = parseInt(document.getElementById('custom-timer-min').value);
+            if (!isNaN(minsInput) && minsInput > 0) {
+                timerTotalSeconds = minsInput * 60;
+                timerSecondsRemaining = timerTotalSeconds;
+                updateTimerDisplay();
+                document.getElementById('current-timer-preset').textContent = `${minsInput}m`;
+                closeTimerSettings();
+                showToast(`Timer customized to ${minsInput} minutes`);
+            } else {
+                showToast("Please enter valid minutes", false);
+            }
+        }
+
+        function openFocusScreen() { document.getElementById('focus-screen-modal').classList.remove('hidden'); }
+        function closeFocusScreen() { document.getElementById('focus-screen-modal').classList.add('hidden'); }
+
+        // Study Hours & Tasks
+        function submitStudyLog() {
+            const day = document.getElementById('log-day-select').value;
+            const hours = parseFloat(document.getElementById('log-hours-input').value);
+            if (isNaN(hours) || hours < 0) {
+                showToast("Please enter valid study hours", false);
+                return;
+            }
+            studyHoursData[day] = hours;
+            const total = Object.values(studyHoursData).reduce((a, b) => a + b, 0);
+            document.getElementById('stat-study-hours').innerHTML = `${total.toFixed(1)} / <span id="stat-study-target-display">${studyTarget}</span> hrs`;
+            const percent = Math.min(100, Math.round((total / (studyTarget * 7)) * 100));
+            document.getElementById('stat-target-percent').textContent = `${percent}%`;
+            showToast(`Logged ${hours} hrs for ${day}`);
+            document.getElementById('log-hours-input').value = '';
+        }
+
+        function renderStudyTasks() {
+            const container = document.getElementById('study-tasks-list');
+            container.innerHTML = '';
+            studyTasks.forEach(task => {
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between bg-gray-900/60 border border-gray-800 px-3.5 py-2.5 rounded-xl";
+                div.innerHTML = `
+                    <label class="flex items-center space-x-3 cursor-pointer">
+                        <input type="checkbox" ${task.done ? 'checked' : ''} onchange="toggleStudyTask(${task.id})" class="w-4 h-4 rounded bg-gray-800 border-gray-700 text-indigo-600 focus:ring-0">
+                        <span class="text-sm ${task.done ? 'line-through text-gray-500' : 'text-gray-200'}">${task.text}</span>
+                    </label>
+                    <span class="text-xs px-2 py-0.5 rounded-md ${task.priority === 'High' ? 'bg-red-500/20 text-red-400' : 'bg-blue-500/20 text-blue-400'}">${task.priority}</span>
+                `;
+                container.appendChild(div);
+            });
+            const completedCount = studyTasks.filter(t => t.done).length;
+            document.getElementById('task-progress-text').textContent = `${completedCount} / ${studyTasks.length} Done`;
+        }
+
+        function toggleStudyTask(id) {
+            const task = studyTasks.find(t => t.id === id);
+            if (task) {
+                task.done = !task.done;
+                renderStudyTasks();
+            }
+        }
+
+        function addNewStudyTask() {
+            const input = document.getElementById('new-task-input');
+            const priority = document.getElementById('new-task-priority').value;
+            if (!input.value.trim()) return;
+            studyTasks.push({ id: Date.now(), text: input.value.trim(), done: false, priority: priority });
+            input.value = '';
+            renderStudyTasks();
+            showToast("Study task added successfully");
+        }
+
+        function openEditTargetModal() { document.getElementById('target-modal').classList.remove('hidden'); }
+        function closeEditTargetModal() { document.getElementById('target-modal').classList.add('hidden'); }
+        function saveNewTarget() {
+            const val = parseFloat(document.getElementById('modal-target-input').value);
+            if (!isNaN(val) && val > 0) {
+                studyTarget = val;
+                document.getElementById('stat-target-val').innerHTML = `${val} <span class="text-sm font-normal text-gray-400">hrs</span>`;
+                document.getElementById('stat-study-target-display').textContent = val;
+                closeEditTargetModal();
+                showToast("Daily study target updated");
+            }
+        }
+
+        // --- HABITS & ROUTINES LOGIC ---
+        function renderHabitsTable() {
+            const tbody = document.getElementById('habits-table-body');
+            tbody.innerHTML = '';
+            habitsList.forEach(habit => {
+                const tr = document.createElement('tr');
+                let daysHtml = '';
+                habit.days.forEach((checked, idx) => {
+                    daysHtml += `<td class="text-center py-3"><input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleHabitDay(${habit.id}, ${idx})" class="w-4 h-4 rounded bg-gray-800 border-gray-700 text-orange-500 focus:ring-0 cursor-pointer"></td>`;
+                });
+                const completedDays = habit.days.filter(Boolean).length;
+                const percentage = Math.round((completedDays / 7) * 100);
+                tr.innerHTML = `
+                    <td class="py-3 font-medium text-gray-200">${habit.name}</td>
+                    ${daysHtml}
+                    <td class="py-3 text-right font-semibold text-orange-400">${percentage}%</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function toggleHabitDay(habitId, dayIdx) {
+            const habit = habitsList.find(h => h.id === habitId);
+            if (habit) {
+                habit.days[dayIdx] = !habit.days[dayIdx];
+                renderHabitsTable();
+            }
+        }
+
+        function addNewHabit() {
+            const input = document.getElementById('new-habit-name');
+            if (!input.value.trim()) return;
+            habitsList.push({ id: Date.now(), name: input.value.trim(), days: [false, false, false, false, false, false, false] });
+            input.value = '';
+            renderHabitsTable();
+            showToast("New habit added to routine");
+        }
+
+        // --- EXPENSE TRACKER LOGIC ---
+        function checkCustomCategory(selectEl) {
+            const customBox = document.getElementById('custom-category-box');
+            if (selectEl.value === 'custom') {
+                customBox.classList.remove('hidden');
+            } else {
+                customBox.classList.add('hidden');
+            }
+        }
+
+        function renderExpenses() {
+            const breakdownContainer = document.getElementById('expense-breakdown-list');
+            const recentContainer = document.getElementById('recent-transactions-list');
+            breakdownContainer.innerHTML = '';
+            recentContainer.innerHTML = '';
+
+            let totalExp = 0;
+            const categoryTotals = {};
+
+            expensesList.forEach(item => {
+                totalExp += item.amount;
+                categoryTotals[item.category] = (categoryTotals[item.category] || 0) + item.amount;
+            });
+
+            // Render Breakdown
+            for (const [cat, amt] of Object.entries(categoryTotals)) {
+                const div = document.createElement('div');
+                div.className = "flex justify-between items-center text-sm bg-gray-900/50 px-3.5 py-2.5 rounded-xl border border-gray-800";
+                div.innerHTML = `<span class="text-gray-300">${cat}</span><span class="font-semibold text-white">₹${amt}</span>`;
+                breakdownContainer.appendChild(div);
+            }
+
+            // Render Recent
+            expensesList.slice(-4).reverse().forEach(item => {
+                const div = document.createElement('div');
+                div.className = "flex justify-between items-center text-sm bg-gray-900/50 px-3.5 py-2.5 rounded-xl border border-gray-800";
+                div.innerHTML = `<div><span class="font-medium text-gray-200 block">${item.name}</span><span class="text-xs text-gray-400">${item.category}</span></div><span class="font-semibold text-red-400">-₹${item.amount}</span>`;
+                recentContainer.appendChild(div);
+            });
+
+            document.getElementById('exp-total-display').textContent = `₹${totalExp.toLocaleString()}`;
+            document.getElementById('breakdown-total-val').textContent = totalExp.toLocaleString();
+            const remaining = monthlyIncome - totalExp;
+            const remEl = document.getElementById('exp-remaining-display');
+            remEl.textContent = `₹${remaining.toLocaleString()}`;
+            remEl.className = remaining >= 0 ? "text-2xl font-bold text-green-400 mt-3" : "text-2xl font-bold text-red-400 mt-3";
+            document.getElementById('recent-tx-count').textContent = `Showing ${expensesList.length} items`;
+        }
+
+        function handleRecordExpense(e) {
+            e.preventDefault();
+            const name = document.getElementById('exp-name').value;
+            const amount = parseFloat(document.getElementById('exp-amount').value);
+            let category = document.getElementById('exp-category').value;
+
+            if (category === 'custom') {
+                const customCatInput = document.getElementById('exp-custom-cat-input').value.trim();
+                if (!customCatInput) {
+                    showToast("Please enter a custom category name", false);
+                    return;
+                }
+                category = customCatInput;
+                // Add option to select if not present
+                const select = document.getElementById('exp-category');
+                const opt = document.createElement('option');
+                opt.value = category;
+                opt.textContent = category;
+                select.insertBefore(opt, select.lastElementChild);
+                select.value = category;
+                document.getElementById('custom-category-box').classList.add('hidden');
+                document.getElementById('exp-custom-cat-input').value = '';
+            }
+
+            if (!name || isNaN(amount) || amount <= 0) {
+                showToast("Please enter valid expense details", false);
+                return;
+            }
+
+            expensesList.push({ id: Date.now(), name, category, amount });
+            renderExpenses();
+            document.getElementById('exp-name').value = '';
+            document.getElementById('exp-amount').value = '';
+            showToast("Expense recorded successfully");
+        }
+
+        function openIncomeModal() { document.getElementById('income-modal').classList.remove('hidden'); }
+        function closeIncomeModal() { document.getElementById('income-modal').classList.add('hidden'); }
+        function saveNewIncome() {
+            const val = parseFloat(document.getElementById('modal-income-input').value);
+            if (!isNaN(val) && val >= 0) {
+                monthlyIncome = val;
+                document.getElementById('exp-income-display').textContent = `₹${val.toLocaleString()}`;
+                renderExpenses();
+                closeIncomeModal();
+                showToast("Monthly income updated");
+            }
+        }
+
+        // --- JOURNAL & NOTES LOGIC ---
+        function renderCalendarDays() {
+            const grid = document.getElementById('calendar-days-grid');
+            grid.innerHTML = '';
+            // 31 days in October 2026 starting on Thursday (Day index 4)
+            // Empty leading cells for Sun(0), Mon(1), Tue(2), Wed(3)
+            for (let i = 0; i < 4; i++) {
+                const empty = document.createElement('div');
+                grid.appendChild(empty);
+            }
+            for (let day = 1; day <= 31; day++) {
+                const btn = document.createElement('button');
+                const isSelected = (day === selectedCalendarDate.day);
+                btn.className = `h-10 rounded-xl text-xs font-semibold flex items-center justify-center transition border ${isSelected ? 'bg-blue-600 text-white border-blue-500 shadow-lg shadow-blue-600/30' : 'bg-gray-900/60 border-gray-800 text-gray-300 hover:border-gray-600'}`;
+                btn.textContent = day;
+                btn.onclick = () => selectCalendarDate(day);
+                grid.appendChild(btn);
+            }
+        }
+
+        function selectCalendarDate(day) {
+            selectedCalendarDate.day = day;
+            document.getElementById('selected-date-badge').textContent = `Selected: Oct ${day}, 2026`;
+            document.getElementById('mood-date-label').textContent = `Oct ${day}`;
+            renderCalendarDays();
+            showToast(`Selected October ${day}, 2026`);
+        }
+
+        function changeMonth(dir) {
+            showToast("Showing October 2026 (Active Workspace Month)");
+        }
+
+        function setDateStatus(status, badgeClass) {
+            showToast(`Recorded mood '${status}' for Oct ${selectedCalendarDate.day}`);
+        }
+
+        function renderJournalTasks() {
+            const studyList = document.getElementById('journal-study-list');
+            const genList = document.getElementById('journal-general-list');
+            studyList.innerHTML = '';
+            genList.innerHTML = '';
+
+            journalTasks.study.forEach(t => {
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between text-xs bg-gray-900 p-2 rounded-lg border border-gray-800";
+                div.innerHTML = `<span class="${t.done ? 'line-through text-gray-500' : 'text-gray-200'}">${t.text}</span><input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleJournalTask('study', ${t.id})">`;
+                studyList.appendChild(div);
+            });
+            journalTasks.general.forEach(t => {
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between text-xs bg-gray-900 p-2 rounded-lg border border-gray-800";
+                div.innerHTML = `<span class="${t.done ? 'line-through text-gray-500' : 'text-gray-200'}">${t.text}</span><input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleJournalTask('general', ${t.id})">`;
+                genList.appendChild(div);
+            });
+            document.getElementById('journal-study-count').textContent = `${journalTasks.study.length} item${journalTasks.study.length===1?'':'s'}`;
+            document.getElementById('journal-general-count').textContent = `${journalTasks.general.length} item${journalTasks.general.length===1?'':'s'}`;
+        }
+
+        function toggleJournalTask(type, id) {
+            const task = journalTasks[type].find(t => t.id === id);
+            if (task) {
+                task.done = !task.done;
+                renderJournalTasks();
+            }
+        }
+
+        function addJournalTask() {
+            const input = document.getElementById('journal-task-input');
+            const priority = document.getElementById('journal-task-priority').value;
+            if (!input.value.trim()) return;
+            const type = priority.includes('Study') ? 'study' : 'general';
+            journalTasks[type].push({ id: Date.now(), text: input.value.trim(), done: false });
+            input.value = '';
+            renderJournalTasks();
+            showToast("Task added successfully");
+        }
+
+        // Quick Notes & Snippets Functionality
+        function saveQuickNote() {
+            const content = document.getElementById('quick-notes-textarea').value;
+            localStorage.setItem('aura_quick_notes', content);
+            showToast("Quick Notes & Snippets saved successfully");
+        }
+
+        function loadQuickNotes() {
+            const saved = localStorage.getItem('aura_quick_notes');
+            if (saved !== null) {
+                document.getElementById('quick-notes-textarea').value = saved;
+            } else {
+                document.getElementById('quick-notes-textarea').value = `# Python formulas, Terminal commands, or quick study notes...\n# git commit -m "upgrade AURA OS v3.0"\n\nprint("AURA OS active")`;
+            }
+        }
+
+        function copyQuickNote() {
+            const textarea = document.getElementById('quick-notes-textarea');
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast("Code snippet copied to clipboard!");
+            } catch (err) {
+                showToast("Failed to copy", false);
+            }
+        }
+
+        function generateAISummary() {
+            showToast("AI Summary generated successfully!");
+            document.getElementById('ai-summary-text').textContent = "Weekly Analysis: Outstanding consistency in Study Hours (12 hrs logged). Habits completion is at 68% with steady progress in Coding and Mindfulness. Expenses remain well within your ₹15,000 budget.";
+        }
+    </script>
+</body>
+</html>
